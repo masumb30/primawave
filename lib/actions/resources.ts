@@ -44,7 +44,7 @@ export async function createResourceAction(
 
   const parsed = resourceSchema.safeParse(fdToObject(formData));
   if (!parsed.success) {
-    const fieldErrors = normalizeFieldErrors(parsed.error.issues);
+    const fieldErrors = normalizeFieldErrors(parsed.error.issues as any);
     console.log("[resource] create:validation-error", fieldErrors);
     return {
       ok: false,
@@ -100,7 +100,7 @@ export async function updateResourceAction(
 
   const parsed = resourceSchema.safeParse(fdToObject(formData));
   if (!parsed.success) {
-    const fieldErrors = normalizeFieldErrors(parsed.error.issues);
+    const fieldErrors = normalizeFieldErrors(parsed.error.issues as any);
     console.log("[resource] update:validation-error", fieldErrors);
     return {
       ok: false,
