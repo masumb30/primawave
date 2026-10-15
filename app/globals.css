@@ -1,26 +1,113 @@
+/* app/globals.css */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* enable class-based dark mode: <html class="dark"> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------ */
+/* Design tokens                                                       */
+/* ------------------------------------------------------------------ */
+@theme {
+  /* Brand: indigo */
+  --color-brand-50:  oklch(0.97 0.02 265);
+  --color-brand-100: oklch(0.93 0.04 265);
+  --color-brand-200: oklch(0.87 0.07 265);
+  --color-brand-300: oklch(0.78 0.11 265);
+  --color-brand-400: oklch(0.68 0.15 265);
+  --color-brand-500: oklch(0.58 0.18 265);
+  --color-brand-600: oklch(0.50 0.19 265);
+  --color-brand-700: oklch(0.43 0.17 265);
+  --color-brand-800: oklch(0.37 0.14 265);
+  --color-brand-900: oklch(0.31 0.10 265);
+
+  /* Neutral surfaces — we'll lean on Tailwind's built-in gray/neutral but
+     define semantic tokens so light/dark swap is a single class change. */
+  --color-surface:         #ffffff;
+  --color-surface-muted:   #f8fafc;
+  --color-border-subtle:   #e2e8f0;
+
+  /* radii */
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* fonts (Next injects --font-geist-sans / --font-geist-mono) */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark-mode overrides for the semantic tokens */
+.dark {
+  --color-surface:         #0b0f19;
+  --color-surface-muted:   #111827;
+  --color-border-subtle:   #1f2937;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-surface text-neutral-900 dark:text-neutral-100 antialiased;
+}
+
+/* nicer focus rings across the app */
+:focus-visible {
+  @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-surface;
+}
+
+/* ------------------------------------------------------------------ */
+/* react-toastify: make it play nicely with our dark mode              */
+/* ------------------------------------------------------------------ */
+:root {
+  --toastify-color-light: #ffffff;
+  --toastify-color-dark:  #111827;
+  --toastify-color-info:    oklch(0.58 0.18 265);
+  --toastify-color-success: oklch(0.65 0.16 155);
+  --toastify-color-warning: oklch(0.75 0.15 75);
+  --toastify-color-error:   oklch(0.60 0.20 25);
+  --toastify-text-color-light: #111827;
+  --toastify-text-color-dark:  #f9fafb;
+}
+
+/* ------------------------------------------------------------------ */
+/* react-day-picker: colored state indicators                          */
+/* ------------------------------------------------------------------ */
+.pw-calendar .day-full > button {
+  background-color: color-mix(in oklab, oklch(0.60 0.20 25) 14%, transparent);
+  color: oklch(0.40 0.15 25);
+}
+.dark .pw-calendar .day-full > button {
+  color: oklch(0.80 0.15 25);
+}
+
+.pw-calendar .day-partial > button {
+  background-color: color-mix(in oklab, oklch(0.75 0.15 75) 18%, transparent);
+  color: oklch(0.45 0.12 75);
+}
+.dark .pw-calendar .day-partial > button {
+  color: oklch(0.85 0.12 75);
+}
+
+.pw-calendar .day-free > button {
+  background-color: color-mix(in oklab, oklch(0.65 0.16 155) 12%, transparent);
+  color: oklch(0.35 0.10 155);
+}
+.dark .pw-calendar .day-free > button {
+  color: oklch(0.85 0.12 155);
+}
+
+.pw-calendar .day-past > button {
+  color: oklch(0.70 0.01 250);
+}
+
+/* Selected overrides the day state colors */
+.pw-calendar .day-full.rdp-selected > button,
+.pw-calendar .day-partial.rdp-selected > button,
+.pw-calendar .day-free.rdp-selected > button {
+  background-color: var(--color-brand-600) !important;
+  color: #ffffff !important;
 }

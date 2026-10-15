@@ -1,0 +1,98 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum BookingMode {
+  HOURLY    // e.g. meeting room — must align to slot boundaries
+  DAILY     // e.g. company van — whole days only
+  FLEXIBLE  // e.g. projector — any start/end within min/max
+}
+
+enum ResourceStatus {
+  AVAILABLE
+  MAINTENANCE
+  INACTIVE
+}
+
+enum ReservationStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  role         Role          @default(USER)
+
+  reservations Reservation[]
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Resource {
+  id           String         @id @default(uuid())
+  name         String
+  description  String?
+  location     String?
+  capacity     Int?
+
+  // Booking rules ----------------------------------------------------------
+  bookingMode  BookingMode    @default(FLEXIBLE)
+  slotMinutes  Int?           // HOURLY only: granularity (e.g. 30)
+  minMinutes   Int?           // minimum duration in minutes
+  maxMinutes   Int?           // maximum duration in minutes
+  openTime     String?        // "08:00" — HOURLY only
+  closeTime    String?        // "18:00" — HOURLY only
+  timezone     String         @default("Asia/Colombo")
+
+  status       ResourceStatus @default(AVAILABLE)
+
+  reservations Reservation[]
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Reservation {
+  id         String            @id @default(uuid())
+  userId     String
+  resourceId String
+  startTime  DateTime
+  endTime    DateTime
+  status     ReservationStatus @default(CONFIRMED)
+  purpose    String?
+
+  user       User              @relation(fields: [userId],     references: [id], onDelete: Cascade)
+  resource   Resource          @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  // Fast overlap lookups + user history
+  @@index([resourceId, status, startTime, endTime])
+  @@index([userId, startTime])
+}
