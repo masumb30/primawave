@@ -52,7 +52,8 @@ export function RegisterForm() {
       toast.success("Account created");
       router.replace("/dashboard");
       router.refresh();
-    } catch {
+    } catch(error) {
+      console.log('sign up error: ', error);
       toast.error("Unexpected error. Try again.");
     } finally {
       setSubmitting(false);
